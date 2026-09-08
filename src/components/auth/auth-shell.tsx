@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
-import { BrandMark } from "@/components/brand-mark";
+import Image from "next/image";
+import Link from "next/link";
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-screen bg-mist lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.82fr)]">
       <section className="flex min-h-screen items-center justify-center px-6 py-10 sm:px-10">
         <div className="w-full max-w-lg">
-          <BrandMark />
+          <Link href="/" className="inline-block overflow-hidden rounded-2xl bg-navy shadow-sm" aria-label="Blue Coast Realty home">
+            <Image src="/brand/blue-coast-realty-logo.png" alt="Blue Coast Realty" width={813} height={640} priority className="h-auto w-44 sm:w-48" />
+          </Link>
           {children}
         </div>
       </section>
