@@ -6,6 +6,25 @@ import { createClient } from "@/lib/supabase/server";
 
 export type AuthState = { error?: string; success?: string };
 
+export async function loginWithGoogle() {
+  const requestHeaders = await headers();
+  const requestOrigin = requestHeaders.get("origin") ?? `http://${requestHeaders.get("host") ?? "localhost:3000"}`;
+  const origin = (process.env.NEXT_PUBLIC_SITE_URL ?? requestOrigin).replace(/\/$/, "");
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      queryParams: { access_type: "offline", prompt: "select_account" },
+    },
+  });
+
+  if (error || !data.url) {
+    redirect(`/login?error=${encodeURIComponent(error?.message ?? "Unable to start Google sign in.")}`);
+  }
+  redirect(data.url);
+}
+
 export async function login(_state: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");

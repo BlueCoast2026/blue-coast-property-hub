@@ -1,6 +1,7 @@
 import { AuthForm } from "@/components/auth/auth-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { signup } from "@/app/actions/auth";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 export const metadata = { title: "Create account" };
 
@@ -19,6 +20,7 @@ export default function SignupPage() {
         { name: "phone", label: "Phone", type: "tel", autoComplete: "tel", placeholder: "04xx xxx xxx" },
         { name: "password", label: "Password", type: "password", autoComplete: "new-password", placeholder: "Minimum 8 characters" },
       ]} showUserType submitLabel="Create Account" footerText="Already have an account?" footerLabel="Sign in" footerHref="/login" />
+      <GoogleAuthButton label="Sign up with Google" />
     </AuthShell>
   );
 }
