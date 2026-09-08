@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #0c2138;
+  --ink: #14283e;
+  --coastal: #247fa2;
+  --mist: #f4f7f8;
+  --sky: #eaf5f8;
+  --sand: #fbf3df;
+  --gold: #d3ad68;
+  --line: #dce5e9;
+  --muted: #637585;
+}
+
+@theme inline {
+  --color-navy: var(--navy);
+  --color-ink: var(--ink);
+  --color-coastal: var(--coastal);
+  --color-mist: var(--mist);
+  --color-sky: var(--sky);
+  --color-sand: var(--sand);
+  --color-gold: var(--gold);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --shadow-card: 0 8px 30px rgba(12, 33, 56, 0.06);
+  --shadow-card-hover: 0 14px 38px rgba(12, 33, 56, 0.1);
+  --font-sans: "Avenir Next", Avenir, "Segoe UI", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--mist); }
+body { margin: 0; color: var(--ink); background: var(--mist); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+
+.coastal-photo {
+  background:
+    linear-gradient(135deg, rgba(36, 127, 162, 0.18), transparent 45%),
+    radial-gradient(circle at 72% 24%, rgba(255,255,255,0.18), transparent 13%),
+    linear-gradient(165deg, #4ca0b8 0 34%, #d9e6e5 34.2% 40%, #9fb7ad 40.2% 62%, #263f4d 62.2% 100%);
+  transform: scale(1.03);
+}
