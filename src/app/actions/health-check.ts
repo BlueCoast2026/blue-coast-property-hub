@@ -58,10 +58,15 @@ export async function deleteProperty(_state: PropertyState, formData: FormData):
 
 export async function submitHealthCheck(_state: HealthCheckState, formData: FormData): Promise<HealthCheckState> {
   const propertyId = String(formData.get("propertyId") ?? "");
-  const submittedAnswers = Object.fromEntries(healthCheckQuestions.map((question) => [question.key, String(formData.get(`answer_${question.key}`) ?? "")])) as Record<string, HealthAnswerValue>;
-  if (!propertyId || healthCheckQuestions.some((question) => !question.options.some((option) => option.value === submittedAnswers[question.key]))) {
-    return { error: "Please answer all 10 questions before submitting." };
-  }
+  if (!propertyId) return { error: "Please select a property before submitting." };
+  let submittedAnswers: Record<string, HealthAnswerValue> = {};
+  try {
+    const parsed: unknown = JSON.parse(String(formData.get("answers") ?? "{}"));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid answers");
+    submittedAnswers = parsed as Record<string, HealthAnswerValue>;
+  } catch { return { error: "The answers could not be read. Please refresh and try again." }; }
+  const missing = healthCheckQuestions.filter((question) => !question.options.some((option) => option.value === submittedAnswers[question.key]));
+  if (missing.length) return { error: `Please answer all 10 questions before submitting. Missing: ${missing.map((question) => question.category).join(", ")}.` };
 
   const payload = healthCheckQuestions.map((question) => ({
     question_key: question.key,
