@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         <DashboardCard title="Property Health Check" description="Review key areas of your current property management service and identify areas worth reviewing." action="Start Health Check" href="/dashboard/health-check" icon={ClipboardCheck} />
         <DashboardCard title="Ready to Rent" description="Check whether your property is ready for the rental market and identify items that may require attention." action="Check My Property" href="/dashboard/ready-to-rent" icon={KeyRound} />
         {isStaff && <DashboardCard title="Admin Dashboard" description="Review member submissions, update their status and provide feedback." action="Open Admin Dashboard" href="/admin" icon={ShieldCheck} />}
-        <DashboardCard title="Market Insights" description="Browse PDF profile reports for 20 Gold Coast focus suburbs." action="View Suburb Reports" href="/dashboard/market-insights" icon={ChartNoAxesCombined} />
+        <DashboardCard title="Market Insights" description="Browse PDF profile reports for Gold Coast focus suburbs." action="View Suburb Reports" href="/dashboard/market-insights" icon={ChartNoAxesCombined} />
       </section>
     </PageContainer>
   );
