@@ -1,10 +1,13 @@
 export type GoldCoastZone = "Coastal" | "Central" | "Northern" | "Hinterland";
+export type BrisbaneZone = "Brisbane City" | "Logan" | "Ipswich" | "South Brisbane";
+export type MarketRegion = "gold_coast" | "brisbane";
 
 export type SuburbProfile = {
   name: string;
   postcode: string;
   slug: string;
-  zone: GoldCoastZone;
+  zone: GoldCoastZone | BrisbaneZone;
+  market?: MarketRegion;
   description: string;
 };
 
@@ -29,4 +32,13 @@ export const goldCoastSuburbProfiles: SuburbProfile[] = [
   { name: "Robina", postcode: "4226", slug: "robina", zone: "Central", description: "A master-planned centre anchored by employment, education and major retail." },
   { name: "Varsity Lakes", postcode: "4227", slug: "varsity-lakes", zone: "Central", description: "Planned residential communities close to education and the rail network." },
   { name: "Mudgeeraba", postcode: "4213", slug: "mudgeeraba", zone: "Hinterland", description: "Established village and family neighbourhoods at the edge of the hinterland." },
+];
+
+export const brisbaneSuburbProfiles: SuburbProfile[] = [
+  { name: "Brisbane City", postcode: "4000", slug: "brisbane-city", zone: "Brisbane City", market: "brisbane", description: "Queensland's capital-city centre with apartments, employment, education and major transport connections." },
+  { name: "Logan", postcode: "4114", slug: "logan", zone: "Logan", market: "brisbane", description: "A major growth corridor between Brisbane and the Gold Coast with diverse housing and expanding infrastructure." },
+  { name: "Ipswich", postcode: "4305", slug: "ipswich", zone: "Ipswich", market: "brisbane", description: "A historic regional centre west of Brisbane supported by transport, employment and new residential growth." },
+  { name: "Park Ridge", postcode: "4125", slug: "park-ridge", zone: "Logan", market: "brisbane", description: "A developing residential area in the Logan growth corridor with expanding community infrastructure." },
+  { name: "Sunnybank", postcode: "4109", slug: "sunnybank", zone: "South Brisbane", market: "brisbane", description: "An established southside suburb known for retail, dining, schools and access to major transport routes." },
+  { name: "Sunnybank Hills", postcode: "4109", slug: "sunnybank-hills", zone: "South Brisbane", market: "brisbane", description: "An established family suburb with schools, shopping and convenient connections across Brisbane's southside." },
 ];
