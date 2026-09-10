@@ -2,20 +2,25 @@
 
 import { useActionState } from "react";
 import { LoaderCircle, Send } from "lucide-react";
-import { reviewReadyToRent } from "@/app/actions/admin-ready-to-rent";
+import { saveAssessmentReview, type SubmissionType } from "@/app/actions/admin-reviews";
 
-export function AdminReviewForm({ submissionId, currentStatus }: { submissionId: string; currentStatus: string }) {
-  const [state, action, pending] = useActionState(reviewReadyToRent, {});
+export function AdminReviewForm({ submissionId, submissionType, currentStatus }: { submissionId: string; submissionType: SubmissionType; currentStatus: string }) {
+  const [state, action, pending] = useActionState(saveAssessmentReview, {});
 
   return <section className="mt-6 rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8">
     <h2 className="text-xl font-semibold text-navy">Review and member feedback</h2>
     <p className="mt-2 text-sm leading-6 text-muted">Changing the status or adding feedback updates the member&apos;s result page.</p>
     <form action={action} className="mt-6 grid gap-5">
       <input type="hidden" name="submissionId" value={submissionId} readOnly />
+      <input type="hidden" name="submissionType" value={submissionType} readOnly />
       <label className="text-sm font-medium text-ink">Review status
         <select name="status" defaultValue={currentStatus} className="mt-2 h-12 w-full rounded-xl border border-line bg-white px-4 outline-none focus:border-coastal sm:max-w-sm">
           <option value="new">New</option><option value="under_review">Under review</option><option value="reviewed">Reviewed</option><option value="report_sent">Report sent</option><option value="closed">Closed</option>
         </select>
+      </label>
+      <label className="text-sm font-medium text-ink">PDF attachment (optional)
+        <input name="attachment" type="file" accept="application/pdf,.pdf" className="mt-2 block w-full rounded-xl border border-line bg-white px-4 py-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-mist file:px-4 file:py-2 file:font-semibold file:text-navy" />
+        <span className="mt-2 block text-xs font-normal text-muted">Maximum 10 MB. The member will only see it on this assessment result.</span>
       </label>
       <label className="text-sm font-medium text-ink">Feedback for member
         <textarea name="note" maxLength={2000} rows={5} placeholder="Add practical next steps or comments for the member…" className="mt-2 w-full rounded-xl border border-line px-4 py-3 leading-6 outline-none focus:border-coastal" />
