@@ -24,8 +24,5 @@ export async function GET(request: NextRequest) {
     if (!error) return NextResponse.redirect(new URL(destination, url.origin));
   }
 
-  const failurePath = destination === "/reset-password"
-    ? "/forgot-password?error=invalid-link"
-    : "/login?error=Google%20sign-in%20could%20not%20be%20completed.%20Please%20try%20again.";
-  return NextResponse.redirect(new URL(failurePath, url.origin));
+  return NextResponse.redirect(new URL("/forgot-password?error=invalid-link", url.origin));
 }
