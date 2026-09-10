@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, Download, FileText, Info } from "lucide-react
 import { PageContainer } from "@/components/layout/page-container";
 import { requireUser } from "@/lib/auth/permissions";
 import { resultContent, type ResultLevel } from "@/lib/health-check/questions";
+import { ResultScoreRing } from "@/components/assessment/result-score-ring";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export default async function HealthCheckResultPage({ params }: { params: Promis
     <span className={`mx-auto grid size-14 place-items-center rounded-2xl ${colour}`}><CheckCircle2 className="size-7" /></span>
     <p className="mt-7 text-sm font-semibold uppercase tracking-[0.18em] text-coastal">Assessment received</p>
     <p className="mt-3 text-sm font-medium text-muted">{address}</p>
-    <p className="mt-4 font-display text-7xl font-medium tracking-tight text-navy">{Number(data.score)}<span className="text-2xl text-muted">/100</span></p>
+    <div className="mt-6 flex justify-center text-navy"><ResultScoreRing score={Number(data.score)} level={data.result_level} /></div>
     <h1 className="mt-6 font-display text-4xl font-medium text-navy">{result.heading}</h1>
     <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted">{result.description}</p>
     <a href={`/api/reports/health-check/${id}`} className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-coastal px-6 text-sm font-semibold text-white"><Download className="size-4" />Download PDF report</a>

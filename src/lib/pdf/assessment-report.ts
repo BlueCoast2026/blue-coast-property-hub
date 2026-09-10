@@ -16,6 +16,11 @@ const navy = rgb(20 / 255, 34 / 255, 67 / 255);
 const gold = rgb(249 / 255, 197 / 255, 91 / 255);
 const ink = rgb(38 / 255, 48 / 255, 64 / 255);
 const muted = rgb(100 / 255, 111 / 255, 128 / 255);
+const resultColours = {
+  green: rgb(21 / 255, 128 / 255, 61 / 255),
+  orange: rgb(217 / 255, 119 / 255, 6 / 255),
+  red: rgb(220 / 255, 38 / 255, 38 / 255),
+};
 
 function safeText(value: string) {
   return value.normalize("NFKD").replace(/[\u2018\u2019]/g, "'").replace(/[\u2013\u2014]/g, "-").replace(/[^\x20-\x7E]/g, "?");
@@ -69,11 +74,16 @@ export async function createAssessmentReport(data: AssessmentReportData) {
 
   addPage();
   drawLines(data.title, { font: bold, size: 24, color: navy, gap: 12 });
-  page.drawRectangle({ x: margin, y: y - 72, width: pageSize[0] - margin * 2, height: 72, color: rgb(244 / 255, 248 / 255, 251 / 255) });
-  page.drawText(`${Math.round(data.score)}/100`, { x: margin + 18, y: y - 48, size: 28, font: bold, color: navy });
-  page.drawText(safeText(data.result.toUpperCase()), { x: margin + 145, y: y - 31, size: 11, font: bold, color: navy });
-  page.drawText(`Submitted ${safeText(data.submittedAt)}`, { x: margin + 145, y: y - 49, size: 9, font: regular, color: muted });
-  y -= 96;
+  page.drawRectangle({ x: margin, y: y - 88, width: pageSize[0] - margin * 2, height: 88, color: rgb(244 / 255, 248 / 255, 251 / 255) });
+  const resultKey = data.result.toLowerCase() as keyof typeof resultColours;
+  const resultColour = resultColours[resultKey] ?? resultColours.orange;
+  const scoreText = `${Math.round(data.score)}`;
+  page.drawCircle({ x: margin + 55, y: y - 44, size: 31, color: rgb(1, 1, 1), borderColor: resultColour, borderWidth: 7 });
+  page.drawText(scoreText, { x: margin + 55 - bold.widthOfTextAtSize(scoreText, 20) / 2, y: y - 49, size: 20, font: bold, color: navy });
+  page.drawText("/100", { x: margin + 92, y: y - 49, size: 8, font: regular, color: muted });
+  page.drawText(safeText(data.result.toUpperCase()), { x: margin + 150, y: y - 36, size: 11, font: bold, color: resultColour });
+  page.drawText(`Submitted ${safeText(data.submittedAt)}`, { x: margin + 150, y: y - 56, size: 9, font: regular, color: muted });
+  y -= 112;
   drawLines(`Member: ${data.memberName}`, { font: bold, size: 11 });
   drawLines(`Property: ${data.propertyAddress}`, { font: bold, size: 11, gap: 18 });
   drawLines("Assessment responses", { font: bold, size: 16, color: navy, gap: 10 });

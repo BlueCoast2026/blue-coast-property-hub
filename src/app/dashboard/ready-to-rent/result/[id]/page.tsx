@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Download, FileText } from "lucide-react";
 import { PageContainer } from "@/components/layout/page-container";
 import { requireUser } from "@/lib/auth/permissions";
 import { readinessResultContent, type ReadinessLevel } from "@/lib/ready-to-rent/questions";
+import { ResultScoreRing } from "@/components/assessment/result-score-ring";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function ReadyToRentResultPage({ params }: { params: Promis
   const content = readinessResultContent[submission.result_level as ReadinessLevel];
 
   return <PageContainer><div className="mx-auto max-w-3xl"><section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-    <div className="bg-navy px-7 py-9 text-white sm:px-10"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Checklist received</p><span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">{submission.status.replaceAll("_", " ")}</span></div><p className="mt-3 text-sm text-white/65">{address}</p><div className="mt-5 flex items-end gap-3"><span className="font-display text-7xl font-medium">{Number(submission.score)}</span><span className="pb-2 text-xl text-white/50">/100</span></div></div>
+    <div className="bg-navy px-7 py-9 text-white sm:px-10"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Checklist received</p><span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">{submission.status.replaceAll("_", " ")}</span></div><p className="mt-3 text-sm text-white/65">{address}</p><div className="mt-6 flex justify-center"><ResultScoreRing score={Number(submission.score)} level={submission.result_level} dark /></div></div>
     <div className="p-7 sm:p-10"><CheckCircle2 className="size-9 text-coastal" /><h1 className="mt-5 font-display text-4xl font-medium text-navy">{content.heading}</h1><p className="mt-4 text-lg leading-8 text-muted">{content.description}</p>
       <a href={`/api/reports/ready-to-rent/${id}`} className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-coastal px-6 text-sm font-semibold text-white"><Download className="size-4" />Download PDF report</a>
       <div className="mt-8 rounded-2xl bg-mist p-6"><h2 className="font-semibold text-navy">Thank you for completing your Ready to Rent checklist.</h2><p className="mt-2 leading-7 text-muted">Your checklist has been received. A Blue Coast Realty professional can review your responses and discuss practical next steps where appropriate.</p><p className="mt-3 text-sm leading-6 text-muted">This checklist is a general readiness indicator only. It is not legal, safety or compliance advice, and it is not a substitute for professional inspections.</p></div>
