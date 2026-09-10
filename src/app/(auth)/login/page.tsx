@@ -15,6 +15,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <p className="mt-4 max-w-md text-base leading-7 text-muted">Access your properties, assessments and property insights in one place.</p>
         {params.message === "check-email" && <p className="mt-6 rounded-xl border border-coastal/20 bg-sky px-4 py-3 text-sm text-navy">Check your email to confirm your account, then sign in.</p>}
         {params.message === "password-updated" && <p className="mt-6 rounded-xl border border-coastal/20 bg-sky px-4 py-3 text-sm text-navy">Your password has been updated. Sign in with your new password.</p>}
+        {params.message === "logged-out" && <p className="mt-6 rounded-xl border border-coastal/20 bg-sky px-4 py-3 text-sm text-navy">You have been securely logged out. <a href="https://blue-coast-realty.com.au" className="font-semibold text-coastal underline underline-offset-4">Return to the website</a>.</p>}
       </div>
       <AuthForm action={login} fields={[
         { name: "email", label: "Email", type: "email", autoComplete: "email", placeholder: "you@example.com" },

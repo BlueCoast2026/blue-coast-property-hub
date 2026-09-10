@@ -48,7 +48,7 @@ export async function signup(_state: AuthState, formData: FormData): Promise<Aut
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/login?message=logged-out");
 }
 
 export async function requestPasswordReset(_state: AuthState, formData: FormData): Promise<AuthState> {
