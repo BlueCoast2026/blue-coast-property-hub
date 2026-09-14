@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         <DashboardCard title="Property Health Check" description="Review key areas of your current property management service and identify areas worth reviewing." action="Start Health Check" href="/dashboard/health-check" icon={ClipboardCheck} />
         <DashboardCard title="Ready to Rent" description="Check whether your property is ready for the rental market and identify items that may require attention." action="Check My Property" href="/dashboard/ready-to-rent" icon={KeyRound} />
         <DashboardCard title="Property Decision Check" description="Compare whether continuing to hold, improving, or exploring a sale may better suit your property and current plans." action="Check My Options" href="/dashboard/property-decision" icon={Scale} />
-        <DashboardCard title="Market Insights" description="Browse PDF profile reports for Gold Coast focus suburbs." action="View Suburb Reports" href="/dashboard/market-insights" icon={ChartNoAxesCombined} />
+        <DashboardCard title="Market Insights" description="Browse Brisbane and Gold Coast market insights and suburb profile reports." action="View Market Insights" href="/dashboard/market-insights" icon={ChartNoAxesCombined} />
         {/* Keep the staff-only administration entry after every member-facing tool. */}
         {isStaff && <DashboardCard title="Admin Dashboard" description="Review member submissions, update their status and provide feedback." action="Open Admin Dashboard" href="/admin" icon={ShieldCheck} />}
       </section>
