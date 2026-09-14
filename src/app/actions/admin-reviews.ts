@@ -6,12 +6,13 @@ import { requireStaff } from "@/lib/auth/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ReviewState = { error?: string; success?: string };
-export type SubmissionType = "health_check" | "ready_to_rent";
+export type SubmissionType = "health_check" | "ready_to_rent" | "property_decision";
 
 const reviewStatuses = new Set(["new", "under_review", "reviewed", "report_sent", "closed"]);
 const tableByType = {
   health_check: "health_check_submissions",
   ready_to_rent: "ready_to_rent_submissions",
+  property_decision: "property_decision_submissions",
 } as const;
 
 export async function saveAssessmentReview(_state: ReviewState, formData: FormData): Promise<ReviewState> {
@@ -67,7 +68,7 @@ export async function saveAssessmentReview(_state: ReviewState, formData: FormDa
     }
   }
 
-  const memberPath = submissionType === "health_check" ? "health-check" : "ready-to-rent";
+  const memberPath = submissionType === "health_check" ? "health-check" : submissionType === "ready_to_rent" ? "ready-to-rent" : "property-decision";
   revalidatePath("/admin");
   revalidatePath(`/admin/${memberPath}/${submissionId}`);
   revalidatePath(`/dashboard/${memberPath}/result/${submissionId}`);

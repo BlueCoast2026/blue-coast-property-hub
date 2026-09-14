@@ -12,7 +12,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ typ
     ? { submission: "health_check_submissions", answers: "health_check_answers", noteType: "health_check", title: "Property Health Check" }
     : type === "ready-to-rent"
       ? { submission: "ready_to_rent_submissions", answers: "ready_to_rent_answers", noteType: "ready_to_rent", title: "Ready to Rent" }
-      : null;
+      : type === "property-decision"
+        ? { submission: "property_decision_submissions", answers: "property_decision_answers", noteType: "property_decision", title: "Property Decision Check" }
+        : null;
   if (!config || !/^[0-9a-f-]{36}$/i.test(id)) return new NextResponse("Not found", { status: 404 });
 
   const { supabase } = await requireUser();
