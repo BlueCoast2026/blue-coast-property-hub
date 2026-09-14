@@ -1,4 +1,4 @@
-import { Home, ClipboardCheck, KeyRound, ChartNoAxesCombined, ShieldCheck } from "lucide-react";
+import { Home, ClipboardCheck, KeyRound, ChartNoAxesCombined, ShieldCheck, Scale } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { PageContainer } from "@/components/layout/page-container";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +25,7 @@ export default async function DashboardPage() {
         <DashboardCard title="My Property" description="Keep your property details, tenancy information and important records organised in one place." action="View Property" href="/dashboard/property" icon={Home} />
         <DashboardCard title="Property Health Check" description="Review key areas of your current property management service and identify areas worth reviewing." action="Start Health Check" href="/dashboard/health-check" icon={ClipboardCheck} />
         <DashboardCard title="Ready to Rent" description="Check whether your property is ready for the rental market and identify items that may require attention." action="Check My Property" href="/dashboard/ready-to-rent" icon={KeyRound} />
+        <DashboardCard title="Property Decision Check" description="Compare whether continuing to hold, improving, or exploring a sale may better suit your property and current plans." action="Check My Options" href="/dashboard/property-decision" icon={Scale} />
         {isStaff && <DashboardCard title="Admin Dashboard" description="Review member submissions, update their status and provide feedback." action="Open Admin Dashboard" href="/admin" icon={ShieldCheck} />}
         <DashboardCard title="Market Insights" description="Browse PDF profile reports for Gold Coast focus suburbs." action="View Suburb Reports" href="/dashboard/market-insights" icon={ChartNoAxesCombined} />
       </section>
