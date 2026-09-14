@@ -14,6 +14,11 @@ const tableByType = {
   ready_to_rent: "ready_to_rent_submissions",
   property_decision: "property_decision_submissions",
 } as const;
+const titleByType: Record<SubmissionType, string> = {
+  health_check: "Property Health Check",
+  ready_to_rent: "Ready to Rent",
+  property_decision: "Property Decision Check",
+};
 
 export async function saveAssessmentReview(_state: ReviewState, formData: FormData): Promise<ReviewState> {
   const submissionId = String(formData.get("submissionId") ?? "");
@@ -33,7 +38,7 @@ export async function saveAssessmentReview(_state: ReviewState, formData: FormDa
 
   const { supabase, user } = await requireStaff();
   const table = tableByType[submissionType];
-  const { data: existing } = await supabase.from(table).select("id").eq("id", submissionId).single();
+  const { data: existing } = await supabase.from(table).select("id, user_id, property_id").eq("id", submissionId).single();
   if (!existing) return { error: "Submission not found or access denied." };
 
   const reviewed = ["reviewed", "report_sent", "closed"].includes(status);
@@ -72,5 +77,34 @@ export async function saveAssessmentReview(_state: ReviewState, formData: FormDa
   revalidatePath("/admin");
   revalidatePath(`/admin/${memberPath}/${submissionId}`);
   revalidatePath(`/dashboard/${memberPath}/result/${submissionId}`);
-  return { success: "Review saved. The member can see the updated feedback and PDF attachment." };
+
+  const token = process.env.POSTMARK_SERVER_TOKEN;
+  if (!token) return { success: "Review saved. Email was not sent because Postmark is not configured yet." };
+  const [{ data: member }, { data: property }] = await Promise.all([
+    supabase.from("profiles").select("first_name, last_name, email").eq("id", existing.user_id).single(),
+    supabase.from("properties").select("address_line_1, suburb, state, postcode").eq("id", existing.property_id).single(),
+  ]);
+  if (!member?.email) return { success: "Review saved. The member does not have an email address for notification." };
+  const memberName = `${member.first_name ?? ""} ${member.last_name ?? ""}`.trim() || "Member";
+  const address = property ? [property.address_line_1, property.suburb, property.state, property.postcode].filter(Boolean).join(", ") : "your property";
+  const resultUrl = `${(process.env.NEXT_PUBLIC_SITE_URL ?? "https://portal.blue-coast-realty.com.au").replace(/\/$/, "")}/dashboard/${memberPath}/result/${submissionId}`;
+  try {
+    const response = await fetch("https://api.postmarkapp.com/email", {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json", "X-Postmark-Server-Token": token },
+      body: JSON.stringify({
+        From: process.env.POSTMARK_FROM_EMAIL ?? "Blue Coast Realty <no-reply@blue-coast-realty.com.au>",
+        To: member.email,
+        ReplyTo: "admin@bluecoastrealty.com.au",
+        Subject: `Your ${titleByType[submissionType]} has been reviewed`,
+        TextBody: [`Hi ${memberName},`, "", `Blue Coast Realty has updated your ${titleByType[submissionType]} for ${address}.`, `Review status: ${status.replaceAll("_", " ")}.`, note ? `Feedback: ${note}` : "", attachment instanceof File && attachment.size > 0 ? "A PDF document has also been added to your result." : "", "", `View your result: ${resultUrl}`].filter(Boolean).join("\n"),
+        MessageStream: "outbound",
+      }),
+    });
+    const body = await response.json() as { ErrorCode?: number };
+    if (!response.ok || body.ErrorCode !== 0) return { success: "Review saved, but Postmark did not send the email. You can retry Save review after Postmark is ready." };
+  } catch {
+    return { success: "Review saved, but the notification email could not be sent. You can retry later." };
+  }
+  return { success: "Review saved and the member notification email was sent successfully." };
 }
