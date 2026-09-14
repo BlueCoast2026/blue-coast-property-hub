@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, TrendingUp } from "lucide-react";
-import { requireStaff } from "@/lib/auth/permissions";
+import { requireAdmin as requireStaff } from "@/lib/auth/permissions";
 const labels:Record<string,string>={sell_soon:"Planning to sell soon",sell_6_12_months:"Considering 6–12 months",curious_value:"Curious about value",compare_hold_sell:"Comparing hold vs sell",exploring_only:"Exploring options only"};
 const priority:Record<string,number>={sell_soon:5,sell_6_12_months:4,compare_hold_sell:3,curious_value:2,exploring_only:1};
 export async function PotentialSellerLeads(){
