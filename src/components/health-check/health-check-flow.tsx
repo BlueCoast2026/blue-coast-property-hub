@@ -3,7 +3,8 @@
 import { useActionState, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Home, LoaderCircle, Plus } from "lucide-react";
 import { addBasicProperty, submitHealthCheck } from "@/app/actions/health-check";
-import { healthCheckQuestions, type HealthAnswerValue } from "@/lib/health-check/questions";
+import type { DisplayQuestion } from "@/lib/assessments/content";
+import type { AppLanguage } from "@/lib/i18n";
 
 type Property = { id: string; address_line_1: string; suburb: string | null; state: string | null; postcode: string | null };
 
@@ -24,29 +25,29 @@ function AddPropertyForm() {
   </section>;
 }
 
-export function HealthCheckFlow({ properties, initialPropertyId }: { properties: Property[]; initialPropertyId?: string }) {
+export function HealthCheckFlow({ properties, initialPropertyId, questions, language }: { properties: Property[]; initialPropertyId?: string; questions: DisplayQuestion[]; language: AppLanguage }) {
   const [current, setCurrent] = useState(0);
   const [propertyId, setPropertyId] = useState(properties.some((property) => property.id === initialPropertyId) ? initialPropertyId! : properties[0]?.id ?? "");
-  const [answers, setAnswers] = useState<Record<string, HealthAnswerValue>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [state, action, pending] = useActionState(submitHealthCheck, {});
   if (properties.length === 0) return <AddPropertyForm />;
 
-  const question = healthCheckQuestions[current];
+  const question = questions[current];
   const answered = answers[question.key];
-  const isLast = current === healthCheckQuestions.length - 1;
+  const isLast = current === questions.length - 1;
   const completed = Object.keys(answers).length;
   const progress = (current + 1) * 10;
 
   return <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
     <section className="rounded-2xl border border-line bg-white p-6 shadow-card sm:p-9">
-      <div className="flex items-center justify-between gap-4"><p className="text-sm font-semibold text-coastal">Question {current + 1} of 10</p><p className="text-sm font-medium text-muted">{progress}%</p></div>
+      <div className="flex items-center justify-between gap-4"><p className="text-sm font-semibold text-coastal">{language === "zh" ? `第 ${current + 1} 题，共 10 题` : `Question ${current + 1} of 10`}</p><p className="text-sm font-medium text-muted">{progress}%</p></div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100" aria-label={`${progress}% complete`}><div className="h-full rounded-full bg-coastal transition-all duration-300" style={{ width: `${progress}%` }} /></div>
       <p className="mt-10 text-sm font-semibold uppercase tracking-[0.16em] text-coastal">{question.category}</p>
       <h2 className="mt-3 max-w-3xl font-display text-3xl font-medium leading-tight text-navy sm:text-4xl">{question.text}</h2>
       <fieldset className="mt-8 grid gap-3 sm:grid-cols-2"><legend className="sr-only">Choose one answer</legend>{question.options.map((option) => { const selected = answered === option.value; return <label key={option.value} className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition ${selected ? "border-coastal bg-sky ring-2 ring-coastal/10" : "border-line hover:border-coastal/50"}`}><span className="flex items-center gap-3"><input type="radio" name={question.key} value={option.value} checked={selected} onChange={() => setAnswers((previous) => ({ ...previous, [question.key]: option.value }))} className="size-4 accent-[#247fa2]" /><span className="font-medium text-ink">{option.label}</span></span><span className="text-sm text-muted">{option.score}/10</span></label>; })}</fieldset>
       {state.error && <p role="alert" className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</p>}
-      <div className="mt-9 flex items-center justify-between gap-4 border-t border-line pt-6"><button type="button" disabled={current === 0 || pending} onClick={() => setCurrent((value) => value - 1)} className="inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold text-navy disabled:opacity-40"><ArrowLeft className="size-4" />Previous</button>{!isLast ? <button type="button" disabled={!answered} onClick={() => setCurrent((value) => value + 1)} className="inline-flex h-11 items-center gap-2 rounded-xl bg-navy px-5 text-sm font-semibold text-white disabled:opacity-40">Next<ArrowRight className="size-4" /></button> : <form action={action}><input type="hidden" name="propertyId" value={propertyId} readOnly /><input type="hidden" name="answers" value={JSON.stringify(answers)} readOnly /><button disabled={completed !== healthCheckQuestions.length || pending} className="inline-flex h-11 items-center gap-2 rounded-xl bg-navy px-5 text-sm font-semibold text-white disabled:opacity-40">{pending ? <LoaderCircle className="size-4 animate-spin" /> : <Check className="size-4" />}Submit Assessment</button></form>}</div>
+      <div className="mt-9 flex items-center justify-between gap-4 border-t border-line pt-6"><button type="button" disabled={current === 0 || pending} onClick={() => setCurrent((value) => value - 1)} className="inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold text-navy disabled:opacity-40"><ArrowLeft className="size-4" />{language === "zh" ? "上一题" : "Previous"}</button>{!isLast ? <button type="button" disabled={!answered} onClick={() => setCurrent((value) => value + 1)} className="inline-flex h-11 items-center gap-2 rounded-xl bg-navy px-5 text-sm font-semibold text-white disabled:opacity-40">{language === "zh" ? "下一题" : "Next"}<ArrowRight className="size-4" /></button> : <form action={action}><input type="hidden" name="propertyId" value={propertyId} readOnly /><input type="hidden" name="answers" value={JSON.stringify(answers)} readOnly /><button disabled={completed !== questions.length || pending} className="inline-flex h-11 items-center gap-2 rounded-xl bg-navy px-5 text-sm font-semibold text-white disabled:opacity-40">{pending ? <LoaderCircle className="size-4 animate-spin" /> : <Check className="size-4" />}{language === "zh" ? "提交评估" : "Submit Assessment"}</button></form>}</div>
     </section>
-    <aside className="space-y-5"><div className="rounded-2xl border border-line bg-white p-5 shadow-card"><label className="text-sm font-semibold text-navy"><span className="mb-3 flex items-center gap-2"><Home className="size-4 text-coastal" />Property</span><select value={propertyId} onChange={(event) => setPropertyId(event.target.value)} className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-medium outline-none focus:border-coastal">{properties.map((property) => <option key={property.id} value={property.id}>{property.address_line_1}, {property.suburb}</option>)}</select></label></div><div className="rounded-2xl bg-navy p-5 text-white"><p className="text-sm font-semibold">Assessment progress</p><p className="mt-3 text-3xl font-semibold">{completed}<span className="text-lg text-white/50"> / 10</span></p><p className="mt-2 text-sm leading-6 text-white/60">Answers are saved when the complete assessment is submitted.</p></div></aside>
+    <aside className="space-y-5"><div className="rounded-2xl border border-line bg-white p-5 shadow-card"><label className="text-sm font-semibold text-navy"><span className="mb-3 flex items-center gap-2"><Home className="size-4 text-coastal" />{language === "zh" ? "物业" : "Property"}</span><select value={propertyId} onChange={(event) => setPropertyId(event.target.value)} className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-medium outline-none focus:border-coastal">{properties.map((property) => <option key={property.id} value={property.id}>{property.address_line_1}, {property.suburb}</option>)}</select></label></div><div className="rounded-2xl bg-navy p-5 text-white"><p className="text-sm font-semibold">{language === "zh" ? "评估进度" : "Assessment progress"}</p><p className="mt-3 text-3xl font-semibold">{completed}<span className="text-lg text-white/50"> / 10</span></p><p className="mt-2 text-sm leading-6 text-white/60">{language === "zh" ? "完成全部问题并提交后，答案才会保存。" : "Answers are saved when the complete assessment is submitted."}</p></div></aside>
   </div>;
 }

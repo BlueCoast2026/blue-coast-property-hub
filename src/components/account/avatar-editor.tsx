@@ -1,0 +1,11 @@
+"use client";
+/* eslint-disable @next/next/no-img-element -- Supabase avatar URLs are user-generated at runtime. */
+import { useActionState } from "react";
+import { Camera, LoaderCircle, Trash2, UserRound } from "lucide-react";
+import { removeAvatar, updateAvatar } from "@/app/actions/profile";
+export function AvatarEditor({ avatarUrl, language }: { avatarUrl?: string; language: "en" | "zh" }) {
+  const [uploadState, uploadAction, uploading] = useActionState(updateAvatar, {});
+  const [removeState, removeAction, removing] = useActionState(removeAvatar, {});
+  const state = uploadState.error || uploadState.success ? uploadState : removeState;
+  return <div className="mt-7 flex flex-wrap items-center gap-5 rounded-2xl bg-mist p-5"><div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-full bg-navy text-white">{avatarUrl ? <img src={avatarUrl} alt="Profile avatar" className="size-full object-cover" /> : <UserRound className="size-10" />}</div><div className="min-w-0 flex-1"><p className="font-semibold text-navy">{language === "zh" ? "个人头像" : "Profile image"}</p><p className="mt-1 text-sm text-muted">{language === "zh" ? "支持 JPG、PNG 或 WebP，最大 5 MB。" : "JPG, PNG or WebP, up to 5 MB."}</p><div className="mt-3 flex flex-wrap gap-2"><form action={uploadAction}><label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-navy px-4 text-sm font-semibold text-white"><Camera className="size-4" />{uploading ? "Uploading…" : language === "zh" ? "更换头像" : "Change image"}<input disabled={uploading} required type="file" name="avatar" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => event.currentTarget.form?.requestSubmit()} /></label></form>{avatarUrl && <form action={removeAction}><button disabled={removing} className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-navy">{removing ? <LoaderCircle className="size-4 animate-spin" /> : <Trash2 className="size-4" />}{language === "zh" ? "删除" : "Remove"}</button></form>}</div>{state.error && <p className="mt-3 text-sm text-red-700">{state.error}</p>}{state.success && <p className="mt-3 text-sm text-emerald-700">{state.success}</p>}</div></div>;
+}
