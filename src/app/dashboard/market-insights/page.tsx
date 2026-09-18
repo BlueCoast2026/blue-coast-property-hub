@@ -18,10 +18,10 @@ export default async function MarketInsightsPage({ searchParams }: { searchParam
   const selected = (await searchParams).market === "brisbane" ? "brisbane" : "gold_coast";
   const { supabase } = await requireUser();
   const reportsDirectory = path.join(process.cwd(), "public", "reports", "suburb-profiles");
-  const { data: managedReports, error } = await supabase.from("suburb_reports").select("name, slug, postcode, zone, market, description, storage_path, published").eq("market", selected);
+  const { data: managedReports, error } = await supabase.from("suburb_reports").select("name, slug, postcode, zone, market, description, storage_path, published, display_order").eq("market", selected).order("display_order").order("name");
   const fallback = selected === "brisbane" ? brisbaneSuburbProfiles : goldCoastSuburbProfiles;
   const reports = !error ? (managedReports ?? []) : fallback;
-  const sortedProfiles = [...reports].sort((a, b) => a.name.localeCompare(b.name, "en-AU")) as SuburbProfile[];
+  const sortedProfiles = reports as SuburbProfile[];
   const managedBySlug = new Map((managedReports ?? []).map((report) => [report.slug, report]));
   const isGoldCoast = selected === "gold_coast";
 

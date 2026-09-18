@@ -45,6 +45,25 @@ export async function saveSuburbReport(_state: SuburbReportState, formData: Form
   return { success: `${name} report saved${published ? " and published" : " as a draft"}.` };
 }
 
+export async function renameSuburbReport(_state: SuburbReportState, formData: FormData): Promise<SuburbReportState> {
+  const id = String(formData.get("id") ?? ""), name = String(formData.get("name") ?? "").trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id) || name.length < 2 || name.length > 100) return { error: "Enter a valid report name." };
+  const { supabase } = await requireAdmin(); const { error } = await supabase.from("suburb_reports").update({ name }).eq("id", id);
+  if (error) return { error: "The report could not be renamed." };
+  revalidatePath("/admin/suburb-reports"); revalidatePath("/dashboard/market-insights"); return { success: "Report renamed." };
+}
+
+export async function reorderSuburbReports(_state: SuburbReportState, formData: FormData): Promise<SuburbReportState> {
+  let ids: string[] = [];
+  try { const value: unknown = JSON.parse(String(formData.get("orderedIds") ?? "[]")); if (!Array.isArray(value)) throw new Error(); ids = value.map(String); } catch { return { error: "The new report order could not be read." }; }
+  if (!ids.length || ids.some((id) => !/^[0-9a-f-]{36}$/i.test(id)) || new Set(ids).size !== ids.length) return { error: "The report order is invalid." };
+  const { supabase } = await requireAdmin();
+  const results = await Promise.all(ids.map((id, display_order) => { const name = String(formData.get(`name_${id}`) ?? "").trim(); return supabase.from("suburb_reports").update({ display_order, ...(name.length >= 2 && name.length <= 100 ? { name } : {}) }).eq("id", id); }));
+  if (results.some((result) => result.error)) return { error: "The report order could not be saved. Confirm migration 016 has been run." };
+  revalidatePath("/admin/suburb-reports"); revalidatePath("/dashboard/market-insights");
+  return { success: "Report order saved." };
+}
+
 export async function deleteSuburbReport(_state: SuburbReportState, formData: FormData): Promise<SuburbReportState> {
   const id = String(formData.get("id") ?? "");
   if (!/^[0-9a-f-]{36}$/i.test(id)) return { error: "Invalid report." };

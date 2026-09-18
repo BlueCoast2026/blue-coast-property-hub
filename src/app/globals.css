@@ -12,6 +12,9 @@
   --muted: #637585;
 }
 
+/* Blog is retained in storage but removed from the active system navigation. */
+a[href="/admin/blog"] { display: none; }
+
 @theme inline {
   --color-navy: var(--navy);
   --color-ink: var(--ink);
