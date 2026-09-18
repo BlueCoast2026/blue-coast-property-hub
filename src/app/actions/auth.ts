@@ -13,7 +13,7 @@ export async function login(_state: AuthState, formData: FormData): Promise<Auth
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
+    if (error) return { error: error.message === "Invalid login credentials" ? "Email or password is incorrect. If this is a new account, confirm the email address before signing in. If the email has already been confirmed, use Forgot your password to set a new password." : error.message };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Unable to sign in." };
   }
