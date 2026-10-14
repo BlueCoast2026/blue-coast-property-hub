@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     const values = { ...metadata, ...(path ? { storage_path: path, uploaded_by: user.id } : {}) };
     const result = body.id
       ? await supabase.from("suburb_reports").update(values).eq("id", body.id).select("id").maybeSingle()
-      : await supabase.from("suburb_reports").insert({ ...values, slug: `${metadata.market}-${metadata.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report"}-${randomUUID().slice(0, 8)}` }).select("id").single();
+      : await supabase.from("suburb_reports").insert({ ...values, slug: `${metadata.market.replace(/_/g, "-")}-${metadata.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report"}-${randomUUID().slice(0, 8)}` }).select("id").single();
     check(result.error, "Save report details");
     if (!result.data) throw new ReportError("No report was saved. Check the report update policy.", 403);
     // Replacement uses a fresh object; previous PDFs remain available and intact.

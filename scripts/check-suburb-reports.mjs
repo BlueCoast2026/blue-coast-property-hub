@@ -72,6 +72,7 @@ const metadata = { action: "save", name: "Southport", postcode: "4215", market: 
   reset([{ data: null, error: null }, { data: { id: reportId }, error: null }]);
   assert.equal((await api.POST(request("POST", { ...metadata, path }))).status, 200);
   assert.equal(state.calls.at(-1).operation, "insert"); assert.equal(state.calls.at(-1).values.storage_path, path);
+  assert(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(state.calls.at(-1).values.slug), "New slug must satisfy the database check constraint");
   assert.equal(state.storage.filter((call) => call[0] === "remove").length, 0);
   reset([{ data: { storage_path: "legacy/southport.pdf" }, error: null }, { data: null, error: null }, { data: { id: reportId }, error: null }]);
   assert.equal((await api.POST(request("POST", { ...metadata, id: reportId, path }))).status, 200);
