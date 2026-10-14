@@ -5,6 +5,9 @@ import { hasSupabaseEnv } from "./env";
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // This module authenticates in its API and reports session errors inside the UI.
+  if (["/admin/suburb-reports", "/api/admin/suburb-reports"].includes(request.nextUrl.pathname)) return response;
+
   if (!hasSupabaseEnv()) {
     if (request.nextUrl.pathname.startsWith("/dashboard")) {
       const url = request.nextUrl.clone();

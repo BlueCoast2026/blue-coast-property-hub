@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { SuburbReportForm } from "@/components/admin/suburb-report-form";
-import { SortableSuburbReports } from "@/components/admin/sortable-suburb-reports";
-import { requireAdmin } from "@/lib/auth/permissions";
-export const dynamic="force-dynamic"; export const metadata={title:"Suburb Report CMS"};
-export default async function Page(){const {supabase}=await requireAdmin();const {data:reports}=await supabase.from("suburb_reports").select("id,name,postcode,zone,market,published,report_date,storage_path,display_order").order("market").order("display_order").order("name");const groups=[{key:"gold_coast",title:"Gold Coast Market Insights"},{key:"brisbane",title:"Brisbane Market Insights"}];return <main className="min-h-screen bg-mist px-5 py-10 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl"><Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-muted"><ArrowLeft className="size-4"/>Admin dashboard</Link><header className="mt-8 border-b border-line pb-8"><p className="text-sm font-semibold uppercase tracking-[.18em] text-coastal">Administrator only</p><h1 className="mt-3 font-display text-4xl text-navy sm:text-5xl">Suburb Report CMS</h1><p className="mt-3 text-muted">Upload reports and drag every item into the order shown to members.</p></header><section className="mt-8 rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8"><h2 className="text-xl font-semibold text-navy">Upload or replace report</h2><SuburbReportForm/></section>{groups.map(group=>{const items=(reports??[]).filter(report=>(report.market??"gold_coast")===group.key);return <section key={group.key} className="mt-8 rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8"><div className="flex items-center justify-between"><div><h2 className="text-xl font-semibold text-navy">{group.title}</h2><p className="mt-1 text-sm text-muted">Drag items to reorder, then select Save order.</p></div><span className="rounded-full bg-mist px-3 py-1 text-xs font-semibold text-muted">{items.length} reports</span></div>{items.length?<SortableSuburbReports reports={items}/>:<p className="mt-5 rounded-xl bg-mist p-5 text-sm text-muted">No reports in this market yet.</p>}</section>})}</div></main>}
+import { SuburbReportManager } from "@/components/admin/suburb-report-manager";
+
+export const metadata = { title: "Suburb Reports" };
+
+export default function SuburbReportsPage() {
+  return <main className="min-h-screen bg-mist px-5 py-10 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl">
+    <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-muted"><ArrowLeft className="size-4" />Admin dashboard</Link>
+    <header className="mt-8 border-b border-line pb-8"><p className="text-sm font-semibold uppercase tracking-[.18em] text-coastal">Administrator only</p><h1 className="mt-3 font-display text-4xl text-navy sm:text-5xl">Suburb Reports</h1><p className="mt-3 text-muted">Manage Gold Coast and Brisbane reports. Add PDFs, replace reports, edit details and arrange the library.</p></header>
+    <SuburbReportManager />
+  </div></main>;
+}
