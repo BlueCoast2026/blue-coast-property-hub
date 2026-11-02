@@ -5,12 +5,14 @@ import { PageContainer } from "@/components/layout/page-container";
 import { requireUser } from "@/lib/auth/permissions";
 import { resultContent, type ResultLevel } from "@/lib/health-check/questions";
 import { ResultScoreRing } from "@/components/assessment/result-score-ring";
+import { getLanguage } from "@/lib/i18n-server";
 
 export const dynamic = "force-dynamic";
 
 export default async function HealthCheckResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase, user } = await requireUser();
+  const language = await getLanguage();
   const { data } = await supabase.from("health_check_submissions").select("id, property_id, score, result_level, status, submitted_at").eq("id", id).eq("user_id", user.id).single();
   if (!data || !data.result_level) notFound();
   const [{ data: property }, { data: feedback }, { data: attachments }] = await Promise.all([
@@ -27,10 +29,11 @@ export default async function HealthCheckResultPage({ params }: { params: Promis
     <p className="mt-7 text-sm font-semibold uppercase tracking-[0.18em] text-coastal">Assessment received</p>
     <p className="mt-3 text-sm font-medium text-muted">{address}</p>
     <div className="mt-6 flex justify-center text-navy"><ResultScoreRing score={Number(data.score)} level={data.result_level} /></div>
+    <p className="mt-3 text-sm font-semibold uppercase tracking-[0.14em] text-coastal">{language === "zh" ? `您的总分：${Math.round(Number(data.score))}/100` : `Your total score: ${Math.round(Number(data.score))}/100`}</p>
     <h1 className="mt-6 font-display text-4xl font-medium text-navy">{result.heading}</h1>
     <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted">{result.description}</p>
     <a href={`/api/reports/health-check/${id}`} className="mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-coastal px-6 text-sm font-semibold text-white"><Download className="size-4" />Download PDF report</a>
-    <div className="mt-8 rounded-2xl bg-mist p-6 text-left"><h2 className="font-semibold text-navy">Thank you for completing your Property Health Check.</h2><p className="mt-2 text-base leading-7 text-muted">Your assessment has been received. A Blue Coast Realty professional can review your responses and provide further insights where appropriate.</p></div>
+    <div className="mt-8 rounded-2xl bg-mist p-6 text-left"><h2 className="font-semibold text-navy">{language === "zh" ? "感谢您完成物业健康检查。" : "Thank you for completing your Property Health Check."}</h2><p className="mt-2 text-base leading-7 text-muted">{language === "zh" ? "我们已收到您的提交。Blue Coast Realty 专员稍后将与您联系，并为您的报告提供反馈。" : "We have received your submission. A Blue Coast Realty specialist will contact you shortly to provide feedback on your report."}</p></div>
     {feedback?.length ? <section className="mt-6 text-left"><h2 className="font-semibold text-navy">Feedback from Blue Coast Realty</h2><div className="mt-3 space-y-3">{feedback.map((item) => <article key={item.id} className="rounded-xl border border-line p-4"><p className="leading-7 text-ink">{item.note}</p><p className="mt-2 text-xs text-muted">{new Intl.DateTimeFormat("en-AU", { dateStyle: "medium" }).format(new Date(item.created_at))}</p></article>)}</div></section> : null}
     {attachments?.length ? <section className="mt-6 text-left"><h2 className="font-semibold text-navy">Documents from Blue Coast Realty</h2><div className="mt-3 space-y-2">{attachments.map((item) => <a key={item.id} href={`/api/review-attachments/${item.id}`} className="flex items-center gap-3 rounded-xl border border-line p-4 font-medium text-navy hover:bg-mist"><FileText className="size-5 text-coastal" />{item.file_name}<Download className="ml-auto size-4" /></a>)}</div></section> : null}
     <div className="mt-5 flex items-start gap-3 rounded-xl border border-line p-4 text-left text-sm leading-6 text-muted"><Info className="mt-0.5 size-4 shrink-0 text-coastal" />This assessment is an initial indicator only. It is not legal advice or a definitive professional conclusion.</div>
