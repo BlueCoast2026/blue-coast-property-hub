@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/permissions";
 import { propertyDecisionQuestions, type DecisionAnswerValue } from "@/lib/property-decision/questions";
+import { sendAdminSubmissionNotification } from "@/lib/email/admin-submission-notification";
 export type DecisionState = { error?: string };
 const thoughts = new Set(["sell_soon","sell_6_12_months","curious_value","compare_hold_sell","exploring_only"]);
 export async function submitPropertyDecision(_state: DecisionState, formData: FormData): Promise<DecisionState> {
@@ -10,7 +11,8 @@ export async function submitPropertyDecision(_state: DecisionState, formData: Fo
   if(!propertyId) return {error:"Please select a property."}; if(!thoughts.has(currentThinking)) return {error:"Please tell us what best describes your current thinking."};
   if(propertyDecisionQuestions.some(q=>!q.options.some(o=>o.value===answers[q.key]))) return {error:"Please answer all 10 questions before continuing."};
   const payload=propertyDecisionQuestions.map(q=>({question_key:q.key,question_text:q.text,answer_code:answers[q.key],answer:q.options.find(o=>o.value===answers[q.key])!.label}));
-  const {supabase}=await requireUser(); const {data,error}=await supabase.rpc("submit_property_decision",{p_property_id:propertyId,p_answers:payload,p_current_thinking:currentThinking});
+  const {supabase,user}=await requireUser(); const {data,error}=await supabase.rpc("submit_property_decision",{p_property_id:propertyId,p_answers:payload,p_current_thinking:currentThinking});
   if(error||!data?.[0]?.submission_id) return {error:"Your Property Decision Check could not be submitted. Confirm migration 014 has been run."};
+  await sendAdminSubmissionNotification({assessmentTitle:"Property Decision Check",adminPath:"/admin/property-decision",submissionId:data[0].submission_id,userId:user.id,propertyId,score:Number(data[0].score),resultLevel:String(data[0].result_level)});
   redirect(`/dashboard/property-decision/result/${data[0].submission_id}`);
 }

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/permissions";
 import { readyToRentQuestions, type ReadinessValue } from "@/lib/ready-to-rent/questions";
+import { sendAdminSubmissionNotification } from "@/lib/email/admin-submission-notification";
 
 export type ReadyToRentState = { error?: string };
 
@@ -24,7 +25,7 @@ export async function submitReadyToRent(_state: ReadyToRentState, formData: Form
     answer_code: submittedAnswers[question.key],
     answer: question.options.find((option) => option.value === submittedAnswers[question.key])!.label,
   }));
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const { data, error } = await supabase.rpc("submit_ready_to_rent", {
     p_property_id: propertyId,
     p_answers: payload,
@@ -32,5 +33,14 @@ export async function submitReadyToRent(_state: ReadyToRentState, formData: Form
   if (error || !data?.[0]?.submission_id) {
     return { error: "Your checklist was not submitted. No partial result was saved—please try again." };
   }
+  await sendAdminSubmissionNotification({
+    assessmentTitle: "Ready to Rent",
+    adminPath: "/admin/ready-to-rent",
+    submissionId: data[0].submission_id,
+    userId: user.id,
+    propertyId,
+    score: Number(data[0].score),
+    resultLevel: String(data[0].result_level),
+  });
   redirect(`/dashboard/ready-to-rent/result/${data[0].submission_id}`);
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/permissions";
 import { healthCheckQuestions, type HealthAnswerValue } from "@/lib/health-check/questions";
+import { sendAdminSubmissionNotification } from "@/lib/email/admin-submission-notification";
 
 export type PropertyState = { error?: string; success?: string };
 export type HealthCheckState = { error?: string };
@@ -74,7 +75,7 @@ export async function submitHealthCheck(_state: HealthCheckState, formData: Form
     answer_code: submittedAnswers[question.key],
     answer: question.options.find((option) => option.value === submittedAnswers[question.key])!.label,
   }));
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const { data, error } = await supabase.rpc("submit_health_check", {
     p_property_id: propertyId,
     p_answers: payload,
@@ -82,5 +83,14 @@ export async function submitHealthCheck(_state: HealthCheckState, formData: Form
   if (error || !data?.[0]?.submission_id) {
     return { error: "Your assessment was not submitted. No partial result was saved—please try again." };
   }
+  await sendAdminSubmissionNotification({
+    assessmentTitle: "Property Health Check",
+    adminPath: "/admin/health-check",
+    submissionId: data[0].submission_id,
+    userId: user.id,
+    propertyId,
+    score: Number(data[0].score),
+    resultLevel: String(data[0].result_level),
+  });
   redirect(`/dashboard/health-check/result/${data[0].submission_id}`);
 }
